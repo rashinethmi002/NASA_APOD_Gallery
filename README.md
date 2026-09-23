@@ -10,7 +10,7 @@ An ASP.NET Core 10.0 MVC Web Application that consumes NASA’s **Astronomy Pict
 
 | Home / Fetch Page | Gallery Page |
 | :---: | :---: |
-| ![Home Fetch Page](./screenshots/home_page.png) | ![Gallery Page](./screenshots/gallery_page.png) |
+| ![Home Fetch Page](./screenshots/home_page.PNG) | ![Gallery Page](./screenshots/gallery_page.PNG) |
 
 ---
 
