@@ -1,0 +1,307 @@
+@model List<NASA_APOD_Gallery.Models.ApodDto>
+
+@{
+    ViewData["Title"] = "APOD Gallery";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg: #05070d;
+        --surface: #0c1220;
+        --border: rgba(76, 141, 255, 0.16);
+        --accent: #4c8dff;
+        --accent-soft: rgba(76, 141, 255, 0.12);
+        --text: #eef2fb;
+        --text-muted: #8b94ab;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3, h4 {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .apod-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.1rem 3rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(5, 7, 13, 0.85);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(10px);
+    }
+
+    .apod-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--text);
+        text-decoration: none;
+    }
+
+    .apod-brand-logo {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 6px rgba(76, 141, 255, 0.4));
+    }
+
+    .apod-nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+        margin-left: 2rem;
+        padding-bottom: 4px;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .apod-nav-links a:hover { color: var(--text); }
+
+    .apod-nav-links a.active {
+        color: var(--text);
+        border-bottom-color: var(--accent);
+    }
+
+    .apod-gallery-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 4rem 3rem 3.5rem;
+    }
+
+    .apod-gallery-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.97) 100%),
+            url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        z-index: 0;
+    }
+
+    .apod-gallery-hero-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 640px;
+    }
+
+    .apod-eyebrow {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 0.9rem;
+    }
+
+    .apod-gallery-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.7rem;
+    }
+
+    .apod-gallery-hero h1 span { color: var(--accent); }
+
+    .apod-gallery-hero p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .apod-grid-wrap {
+        padding: 0 3rem 5rem;
+    }
+
+    .apod-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .apod-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(76,141,255,0.4);
+    }
+
+    .apod-card img {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .apod-card-placeholder {
+        height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        background: #0f1830;
+    }
+
+    .apod-card .card-body {
+        padding: 1.15rem 1.25rem 1.35rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .apod-card .card-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.02rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    .apod-card .card-date {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .apod-badge {
+        display: inline-block;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        margin-bottom: 0.6rem;
+        width: fit-content;
+    }
+
+    .apod-card .card-text {
+        color: var(--text-muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .apod-empty {
+        text-align: center;
+        padding: 5rem 1.5rem;
+        border: 1px dashed var(--border);
+        border-radius: 16px;
+    }
+
+    .apod-empty svg { color: var(--text-muted); opacity: 0.5; margin-bottom: 1rem; }
+    .apod-empty h3 { font-weight: 600; margin-bottom: 0.5rem; }
+    .apod-empty p { color: var(--text-muted); }
+    .apod-empty a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .apod-empty a:hover { text-decoration: underline; }
+
+    @@media (max-width: 640px) {
+        .apod-nav, .apod-gallery-hero, .apod-grid-wrap { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .apod-gallery-hero h1 { font-size: 1.9rem; }
+    }
+</style>
+
+<nav class="apod-nav">
+    <a class="apod-brand" asp-controller="Home" asp-action="Index">
+        <img src="~/images/nasa-logo.svg" alt="NASA Logo" class="apod-brand-logo" />
+        NASA APOD
+    </a>
+    <div class="apod-nav-links">
+        <a asp-controller="Home" asp-action="Index">Fetch</a>
+        <a class="active" asp-controller="Gallery" asp-action="Index">Gallery</a>
+    </div>
+</nav>
+
+<section class="apod-gallery-hero">
+    <div class="apod-gallery-hero-inner">
+        <div class="apod-eyebrow">Explore the universe</div>
+        <h1>NASA APOD <span>Gallery</span></h1>
+        <p>Browse every Astronomy Picture of the Day you've saved to the database.</p>
+    </div>
+</section>
+
+<div class="apod-grid-wrap">
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var apod in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="apod-card">
+                        @if (apod.IsImage && !string.IsNullOrWhiteSpace(apod.ImageUrl))
+                        {
+                            <img src="@apod.ImageUrl" alt="@apod.Title" loading="lazy" />
+                        }
+                        else if (!string.IsNullOrWhiteSpace(apod.MediaType) && apod.MediaType.Equals("video", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="apod-card-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                    <path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445z" />
+                                </svg>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="apod-card-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M14.002 3a1 1 0 0 1 1 1v8.002a1 1 0 0 1-1 1H2.002a1 1 0 0 1-1-1V4.002a1 1 0 0 1 1-1h12zM2 2a2 2 0 0 0-2 2v8.002a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z" />
+                                    <path d="M10.648 8.646a.5.5 0 0 1 .704.058l2.5 3a.5.5 0 0 1-.736.678l-2.5-3a.5.5 0 0 1-.058-.704zM4.002 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                                </svg>
+                            </div>
+                        }
+
+                        <div class="card-body">
+                            <div class="card-title">@apod.Title</div>
+                            <div class="card-date">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>
+                                @apod.Date
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(apod.MediaType))
+                            {
+                                <span class="apod-badge">@apod.MediaType</span>
+                            }
+                            <p class="card-text">@apod.Explanation</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="apod-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M14.002 3a1 1 0 0 1 1 1v8.002a1 1 0 0 1-1 1H2.002a1 1 0 0 1-1-1V4.002a1 1 0 0 1 1-1h12zM2 2a2 2 0 0 0-2 2v8.002a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z" />
+                <path d="M10.648 8.646a.5.5 0 0 1 .704.058l2.5 3a.5.5 0 0 1-.736.678l-2.5-3a.5.5 0 0 1-.058-.704zM4.002 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+            </svg>
+            <h3>No APOD records found</h3>
+            <p>
+                The gallery is empty.
+                <a asp-controller="Home" asp-action="Index">Go fetch some NASA APOD images</a>
+                to see them displayed here.
+            </p>
+        </div>
+    }
+</div>

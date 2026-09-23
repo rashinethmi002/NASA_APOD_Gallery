@@ -1,0 +1,20 @@
+## Ignore Visual Studio / .NET temporary build output & user configuration files
+
+# Build results
+[Bb]in/
+[Ob]j/
+out/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Sensitive configuration & local settings
+appsettings.Development.json
+*.secrets.json
+
+# Operating System files
+.DS_Store
+Thumbs.db

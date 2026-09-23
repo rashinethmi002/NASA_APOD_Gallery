@@ -1,0 +1,405 @@
+@model List<NASA_APOD_Gallery.Models.ApodDto>
+
+@{
+    ViewData["Title"] = "Fetch APOD";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg: #05070d;
+        --surface: #0c1220;
+        --surface-2: #0f1830;
+        --border: rgba(76, 141, 255, 0.16);
+        --accent: #4c8dff;
+        --accent-soft: rgba(76, 141, 255, 0.12);
+        --text: #eef2fb;
+        --text-muted: #8b94ab;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3, h4, .apod-heading {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .apod-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.1rem 3rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(5, 7, 13, 0.85);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(10px);
+    }
+
+    .apod-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+        color: var(--text);
+        text-decoration: none;
+    }
+
+    .apod-brand-logo {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 6px rgba(76, 141, 255, 0.4));
+    }
+
+    .apod-nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+        margin-left: 2rem;
+        padding-bottom: 4px;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .apod-nav-links a:hover { color: var(--text); }
+
+    .apod-nav-links a.active {
+        color: var(--text);
+        border-bottom-color: var(--accent);
+    }
+
+    .apod-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 5rem 3rem 4rem;
+        min-height: 88vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .apod-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(100deg, rgba(5,7,13,0.97) 30%, rgba(5,7,13,0.55) 62%, rgba(5,7,13,0.15) 100%),
+            url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        z-index: 0;
+    }
+
+    .apod-hero-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 620px;
+    }
+
+    .apod-eyebrow {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .apod-hero h1 {
+        font-size: 3.1rem;
+        font-weight: 700;
+        line-height: 1.12;
+        margin-bottom: 1.2rem;
+    }
+
+    .apod-hero h1 span {
+        color: var(--accent);
+    }
+
+    .apod-hero p.lead {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        max-width: 480px;
+        margin-bottom: 2.2rem;
+    }
+
+    .apod-fetch-card {
+        background: rgba(12, 18, 32, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.8rem;
+        backdrop-filter: blur(6px);
+    }
+
+    .apod-fetch-card h4 {
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .apod-fetch-card label {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        margin-bottom: 0.4rem;
+    }
+
+    .apod-fetch-card .form-control {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 0.65rem 0.8rem;
+    }
+
+    .apod-fetch-card .form-control:focus {
+        background: var(--surface-2);
+        color: var(--text);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .apod-fetch-card .form-control::-webkit-calendar-picker-indicator {
+        filter: invert(0.7);
+    }
+
+    .btn-apod-fetch {
+        background: var(--accent);
+        border: none;
+        color: #05070d;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.65rem 1.2rem;
+        width: 100%;
+        transition: filter 0.15s ease;
+    }
+
+    .btn-apod-fetch:hover { filter: brightness(1.1); color: #05070d; }
+
+    .apod-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2.4rem;
+        padding: 2.2rem 3rem;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .apod-feature {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        min-width: 220px;
+    }
+
+    .apod-feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .apod-feature strong {
+        display: block;
+        font-size: 0.9rem;
+    }
+
+    .apod-feature span {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    .apod-alert {
+        max-width: 1100px;
+        margin: 2rem auto 0;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .apod-results {
+        padding: 3rem 3rem 5rem;
+    }
+
+    .apod-results h3 {
+        font-weight: 600;
+        margin-bottom: 1.6rem;
+    }
+
+    .apod-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        height: 100%;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .apod-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(76,141,255,0.4);
+    }
+
+    .apod-card img, .apod-card .ratio {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .apod-card .card-body {
+        padding: 1.15rem 1.25rem 1.35rem;
+    }
+
+    .apod-card .card-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.02rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    .apod-card .card-date {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 500;
+        margin-bottom: 0.6rem;
+    }
+
+    .apod-card .card-text {
+        color: var(--text-muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    @@media (max-width: 640px) {
+        .apod-nav, .apod-hero, .apod-features, .apod-results { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .apod-hero h1 { font-size: 2.2rem; }
+    }
+</style>
+
+<nav class="apod-nav">
+    <a class="apod-brand" asp-controller="Home" asp-action="Index">
+        <img src="~/images/nasa-logo.svg" alt="NASA Logo" class="apod-brand-logo" />
+        NASA APOD
+    </a>
+    <div class="apod-nav-links">
+        <a class="active" asp-controller="Home" asp-action="Index">Fetch</a>
+        <a asp-controller="Gallery" asp-action="Index">Gallery</a>
+    </div>
+</nav>
+
+<section class="apod-hero">
+    <div class="apod-hero-inner">
+        <div class="apod-eyebrow">Explore the universe</div>
+        <h1>NASA Astronomy <span>Picture of the Day</span></h1>
+        <p class="lead">
+            Pull real astronomy imagery straight from NASA's APOD API for any date
+            range, save it to your database, and browse it in a gallery built for it.
+        </p>
+
+        <div class="apod-fetch-card">
+            <h4>Fetch APOD Images</h4>
+            <form asp-action="FetchApod" method="post">
+                <div class="row g-3 align-items-end">
+                    <div class="col-sm-5">
+                        <label for="startDate" class="form-label">Start date</label>
+                        <input type="date" id="startDate" name="startDate" class="form-control" required />
+                    </div>
+                    <div class="col-sm-5">
+                        <label for="endDate" class="form-label">End date</label>
+                        <input type="date" id="endDate" name="endDate" class="form-control" required />
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="submit" class="btn btn-apod-fetch">Fetch</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="apod-features">
+    <div class="apod-feature">
+        <div class="apod-feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/></svg>
+        </div>
+        <div>
+            <strong>Real NASA data</strong>
+            <span>Straight from the official APOD API</span>
+        </div>
+    </div>
+    <div class="apod-feature">
+        <div class="apod-feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/></svg>
+        </div>
+        <div>
+            <strong>Saved to your database</strong>
+            <span>Persisted via SQL Server and ADO.NET</span>
+        </div>
+    </div>
+    <div class="apod-feature">
+        <div class="apod-feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-10zm10 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h10z"/></svg>
+        </div>
+        <div>
+            <strong>Browse in the gallery</strong>
+            <span>Responsive cards for every saved picture</span>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger apod-alert">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success apod-alert">@TempData["Success"]</div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="apod-results">
+        <h3>Just fetched</h3>
+        <div class="row g-4">
+            @foreach (var apod in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="apod-card">
+                        @if (apod.IsImage)
+                        {
+                            <img src="@apod.ImageUrl" alt="@apod.Title" loading="lazy" />
+                        }
+                        else if (!string.IsNullOrWhiteSpace(apod.MediaType) && apod.MediaType.Equals("video", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="ratio ratio-16x9">
+                                <iframe src="@apod.EmbedUrl" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <div class="card-title">@apod.Title</div>
+                            <div class="card-date">@apod.Date</div>
+                            <p class="card-text">@apod.Explanation</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
